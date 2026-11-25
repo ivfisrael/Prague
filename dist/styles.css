@@ -3,3 +3,6 @@
 /* Keep trip information comfortable to read outdoors. */
 .day-tab strong{font-size:14px}.day-tab small,.day-tab .tab-top{font-size:12px}.day-top{font-size:14px}.day-stats span{font-size:12px}.day-actions{font-size:12px}.primary,.secondary{font-size:14px}.attraction p{font-size:14px}.card-links,.card-links button{font-size:13px}.stop-row strong{font-size:14px}.stop-row small{font-size:12px}.map-caption{font-size:12px}.bottom-note p{font-size:12px}.little-note p{font-size:14px}.progress-note small{font-size:12px}.summary span>small{font-size:12px}.trip-tags span{font-size:13px}.eyebrow{font-size:12px}.stage-line{font-size:14px}.stage-line .via{font-size:12px}
 @media(max-width:700px){.attraction{grid-template-columns:1fr}.attraction-image img{height:190px;min-height:190px}.attraction h3{font-size:20px}.attraction-body{padding:20px}.day-stats strong{font-size:20px}.summary span>small{font-size:11px}.trip-tags span{font-size:12px}.day-tab{min-width:175px}.day-tab strong{font-size:13px}.stage-line{font-size:13px}}
+
+.attraction-marker,.stop-number,.legend-attraction{background:#ffe4b8;color:#653910}
+.legend-attraction{border-radius:6px;padding:1px 5px;font-weight:700}
