@@ -13,11 +13,54 @@ function notify(message){$('toast').textContent=message;$('toast').classList.add
 function showDialog(html){$('detail-content').innerHTML=html;$('detail').showModal();}
 function photoCredit(key){const p=photos[key];return `<a href="${sourceFor(key)}" target="_blank" rel="noopener">${p.author} / Wikimedia Commons</a> · <a href="https://creativecommons.org/licenses/${p.license}/" target="_blank" rel="noopener">CC ${p.license.replace('/',' ').toUpperCase()}</a> · display crop`;}
 function showPlace(id){const p=places[id];showDialog(`<img class="detail-photo" src="assets/${p.photo}.jpg" alt="${p.name}"><div class="detail-body"><span class="eyebrow">${p.category}</span><h2>${p.name}</h2><p>${p.description}</p><p>${p.detail}</p><p><strong>Suggested visit:</strong> ${p.time}<br><strong>Access:</strong> ${p.access}</p><p><a class="primary" href="${locationFor(p)}" target="_blank" rel="noopener">Open location</a> &nbsp; <a href="${p.url}" target="_blank" rel="noopener">Visitor information</a></p><p style="font-size:11px">${photoCredit(p.photo)}</p></div>`);}
-function drawMap(){if(!map)return;layer.clearLayers();markers=[];const d=days[selected];L.polyline(d.line,{color:'#24795d',weight:4,opacity:.8,dashArray:'7 8'}).addTo(layer);for(const [i,id] of d.stops.entries()){const p=places[id];const marker=L.marker(p.coords,{icon:L.divIcon({className:'place-marker',html:String(i+1),iconSize:[32,32],iconAnchor:[16,16]}),title:p.name,alt:p.name}).addTo(layer);const popup=document.createElement('div');const b=document.createElement('strong');b.textContent=p.name;popup.append(b,document.createElement('br'));const detail=document.createElement('button');detail.textContent='Explore this stop';detail.addEventListener('click',()=>showPlace(id));popup.append(detail);marker.bindPopup(popup);markers.push(marker);}fitMap();}
-function fitMap(){if(map){const d=days[selected];map.fitBounds(L.latLngBounds([...d.line,...d.stops.map(id=>places[id].coords)]),{padding:[28,28],maxZoom:12});}}
+const stopLetter = index => String.fromCharCode(65 + index);
+function drawMap() {
+  if (!map) return;
+  layer.clearLayers();
+  markers = [];
+  const day = days[selected];
+  L.polyline(day.line, {color:'#24795d', weight:4, opacity:.8, dashArray:'7 8'}).addTo(layer);
+
+  const endpoints = [
+    {coords:day.line[0], label:'Start', town:day.from},
+    {coords:day.line.at(-1), label:'Finish', town:day.to}
+  ];
+  for (const [index, endpoint] of endpoints.entries()) {
+    const title = `${index + 1} · ${endpoint.label}: ${endpoint.town}`;
+    L.marker(endpoint.coords, {
+      title, alt:title, zIndexOffset:200,
+      icon:L.divIcon({className:'place-marker endpoint-marker', html:String(index + 1),
+        iconSize:[32,32], iconAnchor:[16,16], popupAnchor:[0,-16]})
+    }).bindPopup(title).addTo(layer);
+  }
+
+  for (const [index, id] of day.stops.entries()) {
+    const place = places[id];
+    const letter = stopLetter(index);
+    const title = `${letter} · ${place.name}`;
+    // Offset the labels on opposite sides so stops remain clickable near the endpoints.
+    const offset = index === 0 ? -29 : 29;
+    const marker = L.marker(place.coords, {
+      title, alt:title,
+      icon:L.divIcon({className:'place-marker attraction-marker', html:letter,
+        iconSize:[24,24], iconAnchor:[12-offset,12], popupAnchor:[offset,-12]})
+    }).addTo(layer);
+    const popup = document.createElement('div');
+    const name = document.createElement('strong');
+    name.textContent = place.name;
+    const detail = document.createElement('button');
+    detail.textContent = 'Explore this stop';
+    detail.addEventListener('click', () => showPlace(id));
+    popup.append(name, document.createElement('br'), detail);
+    marker.bindPopup(popup);
+    markers.push(marker);
+  }
+  fitMap();
+}
+function fitMap(){if(map){const d=days[selected];map.fitBounds(L.latLngBounds([...d.line,...d.stops.map(id=>places[id].coords)]),{padding:[48,32],maxZoom:12});}}
 function focusPlace(index){if(!map){showPlace(days[selected].stops[index]);return;}const p=places[days[selected].stops[index]];map.setView(p.coords,14);markers[index].openPopup();$('map-section').scrollIntoView({behavior:'smooth',block:'center'});}
 function updateProgress(){const total=[...completed].reduce((sum,i)=>sum+days[i].km,0);$('completion-count').textContent=`${completed.size} of 5 rides completed`;$('progress-label').textContent=`${total} / 225 km completed`;$('progress-bar').style.width=completed.size*20+'%';$('complete').textContent=completed.has(selected)?'✓ Ride completed · undo':'Mark ride as completed';$('complete').setAttribute('aria-pressed',String(completed.has(selected)));}
-function render(){const d=days[selected];$('day-tabs').innerHTML=days.map((day,i)=>`<button class="day-tab ${i===selected?'active':''}" data-day="${i}" aria-pressed="${i===selected}"><span class="tab-top"><span>DAY ${i+1} ${completed.has(i)?'✓':''}</span><span>${12+i} SEP</span></span><strong>${day.from} – ${day.to}</strong><small>~${day.km} km · ${day.terrain}</small></button>`).join('');$('day-label').textContent=`DAY ${selected+1} / 5`;$('day-date').textContent=dateLabel(d.date);$('day-title').textContent=d.from+' to '+d.to;$('day-description').textContent=d.description;$('day-km').textContent='~'+d.km+' km';$('day-time').textContent=d.time;$('day-terrain').textContent=d.terrain;$('stage-line').innerHTML=`<span>${d.from}</span><i></i><span class="via">${d.via}</span><i></i><span>${d.to}</span>`;$('note-title').textContent=d.note;$('day-tip').textContent=d.tip;$('stops-count').textContent=d.stops.length+' highlights';$('stop-list').innerHTML=d.stops.map((id,i)=>`<button class="stop-row" data-focus="${i}"><span class="stop-number">${i+1}</span><span><strong>${places[id].name}</strong><small>${places[id].time} · ${places[id].access}</small></span></button>`).join('');$('attractions').innerHTML=d.stops.map(id=>{const p=places[id];return `<article class="attraction"><button class="attraction-image" data-place="${id}" aria-label="Explore ${p.name}"><img src="assets/${p.photo}.jpg" alt="${p.name}" loading="lazy"></button><div class="attraction-body"><span class="category">${p.category}</span><h3>${p.name}</h3><p>${p.description}</p><div class="card-links"><button class="text-button" data-place="${id}">Explore stop</button><a href="${locationFor(p)}" target="_blank" rel="noopener">Location</a></div></div></article>`;}).join('');updateProgress();drawMap();}
+function render(){const d=days[selected];$('day-tabs').innerHTML=days.map((day,i)=>`<button class="day-tab ${i===selected?'active':''}" data-day="${i}" aria-pressed="${i===selected}"><span class="tab-top"><span>DAY ${i+1} ${completed.has(i)?'✓':''}</span><span>${12+i} SEP</span></span><strong>${day.from} – ${day.to}</strong><small>~${day.km} km · ${day.terrain}</small></button>`).join('');$('day-label').textContent=`DAY ${selected+1} / 5`;$('day-date').textContent=dateLabel(d.date);$('day-title').textContent=d.from+' to '+d.to;$('day-description').textContent=d.description;$('day-km').textContent='~'+d.km+' km';$('day-time').textContent=d.time;$('day-terrain').textContent=d.terrain;$('stage-line').innerHTML=`<span>${d.from}</span><i></i><span class="via">${d.via}</span><i></i><span>${d.to}</span>`;$('note-title').textContent=d.note;$('day-tip').textContent=d.tip;$('stops-count').textContent=d.stops.length+' highlights';$('stop-list').innerHTML=d.stops.map((id,i)=>`<button class="stop-row" data-focus="${i}"><span class="stop-number">${stopLetter(i)}</span><span><strong>${places[id].name}</strong><small>${places[id].time} · ${places[id].access}</small></span></button>`).join('');$('attractions').innerHTML=d.stops.map(id=>{const p=places[id];return `<article class="attraction"><button class="attraction-image" data-place="${id}" aria-label="Explore ${p.name}"><img src="assets/${p.photo}.jpg" alt="${p.name}" loading="lazy"></button><div class="attraction-body"><span class="category">${p.category}</span><h3>${p.name}</h3><p>${p.description}</p><div class="card-links"><button class="text-button" data-place="${id}">Explore stop</button><a href="${locationFor(p)}" target="_blank" rel="noopener">Location</a></div></div></article>`;}).join('');updateProgress();drawMap();}
 function selectDay(index,hash=true){selected=index;render();if(hash)history.replaceState(null,'','#day-'+(index+1));}
 document.addEventListener('click',e=>{const day=e.target.closest('[data-day]'),place=e.target.closest('[data-place]'),focus=e.target.closest('[data-focus]');if(day)selectDay(Number(day.dataset.day));if(place)showPlace(place.dataset.place);if(focus)focusPlace(Number(focus.dataset.focus));});
 $('complete').addEventListener('click',()=>{if(completed.has(selected))completed.delete(selected);else completed.add(selected);try{localStorage.setItem('river-ride-completed',JSON.stringify([...completed]));}catch{notify('Progress cannot be saved in this browser.');}render();});
