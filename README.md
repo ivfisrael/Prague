@@ -9,7 +9,7 @@ The app is published at https://ivfisrael.github.io/Prague/ . Anyone with the li
 ## Features
 
 - Fixed five-stage itinerary; switch days to update the dashboard, map and attraction cards.
-- Approximately 220 km: Prague → Mělník → Litoměřice → Děčín → Bad Schandau → Dresden.
+- Approximately 230 km: Prague → Mělník → Litoměřice → Děčín → Bad Schandau → Dresden.
 - Interactive Leaflet map with numbered attraction markers and location links.
 - Ten attraction descriptions with photographs, visit durations and access notes.
 - Automatic current-day selection using Europe/Prague local time, plus shareable `#day-1` through `#day-5` links.
@@ -32,7 +32,7 @@ Edit `dist/data.js` for dates, distances, stage waypoints and attraction descrip
 
 ## Planning limits
 
-Overnight towns are suggested and have not been matched to booked hotels. Distances and riding times are estimates, excluding sightseeing and optional detours. Map lines follow planned cycling routes generated with [BRouter](https://brouter.de/) and OpenStreetMap. Confirm current access and detours before riding. Some sections share roads. Bastei requires extra walking/climbing and possibly a ferry. Check seasonal opening hours and route conditions nearer departure.
+Overnight towns are suggested and have not been matched to booked hotels. Distances and riding times are estimates, excluding sightseeing and optional detours. Map lines follow planned cycling routes generated with [BRouter](https://brouter.de/) and OpenStreetMap, checked against the [official Elberadweg GPS tracks](https://www.elberadweg.de/planen-buchen/interaktive-karte-gps/). Confirm current access and detours before riding. Some sections share roads. Bastei requires extra walking/climbing and possibly a ferry. Check seasonal opening hours and route conditions nearer departure.
 
 The map uses standard OpenStreetMap tiles without an API key, with visible attribution and normal browser caching. Map tiles and web fonts need internet access; offline support is not implemented. Completion is per browser, not shared between riders.
 
