@@ -34,6 +34,6 @@ Edit `dist/data.js` for dates, distances, stage waypoints and attraction descrip
 
 Overnight towns are suggested and have not been matched to booked hotels. Distances and riding times are estimates, excluding sightseeing and optional detours. Map lines connect waypoints schematically and are **not navigation tracks**. Use the operator’s confirmed GPX. Some sections share roads. Bastei requires extra walking/climbing and possibly a ferry. Check seasonal opening hours and route conditions nearer departure.
 
-Map tiles and web fonts need internet access; offline support is not implemented. Completion is per browser, not shared between riders.
+The map uses standard OpenStreetMap tiles without an API key, with visible attribution and normal browser caching. Map tiles and web fonts need internet access; offline support is not implemented. Completion is per browser, not shared between riders.
 
 Route references: https://www.elbe-cycle-route.com/ and https://www.rueckenwind.de/en/destinations/biketours-germany/cycle-tour-prague-dresden . Content prepared November 2026.
